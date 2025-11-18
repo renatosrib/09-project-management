@@ -1,7 +1,7 @@
 import Button from "./Button.jsx";
 import {createPortal} from 'react-dom';
 
-function Menu({projects, currentProject, onSelectProject}) {
+function Menu({projects, currentProject, onSelectProject, onAddProject}) {
 
     return createPortal((<div className="">
             <h2 className="font-extrabold text-xl mt-5 ml-8">Selected
@@ -12,7 +12,7 @@ function Menu({projects, currentProject, onSelectProject}) {
                     {projects?.sort()?.map(item => <li key={item.title}><button  className="cursor-pointer" onClick={(() => onSelectProject(item))}>{item.title}</button></li>)}
 
                 </ul>
-                <Button classname="w-2/3 mt-10">+ Add Project</Button>
+                <Button onClick={onAddProject} classname="w-2/3 mt-10">+ Add Project</Button>
 
 
             </menu>

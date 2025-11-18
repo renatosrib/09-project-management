@@ -6,7 +6,6 @@ import Menu from "./components/Menu.jsx";
 import ProjectManagement from "./pages/ProjectManagement.jsx";
 
 export default function BodyContent() {
-    const SELECTED_PROJECT = "SELECTED_PROJECT";
     const MAIN = "MAIN";
     const NEW_PROJECT = "NEW_PROJECT";
 
@@ -30,18 +29,40 @@ export default function BodyContent() {
 
     function updateProject(project) {
         let newProject = projects.find((p) => p.title && p.title === project.title) || project;
-        setProjects([...projects.filter(p => p.title !== project.title), newProject]);
-        setCurrentContext(MAIN);
+        setProjects(() => [...projects.filter(p => p.title !== project.title), newProject]);
+    }
+
+    function deleteProject(project) {
+        setProjects(() => projects.filter((p) => p.title !== project.title));
+    }
+
+    function clearTask(task) {
+        const project = currentProject;
+        project.tasks = project.tasks.map(p => {
+            if (p.name === task.name) {
+                p.status = 'COMPLETED';
+            }
+            return p;
+        });
+        updateProject(project);
     }
 
     return (
         <>
-            <Menu projects={projects} onSelectProject={(project) => setCurrentProject(() => project)} />
+            <Menu
+                projects={projects}
+                currentProject={currentProject}
+                onSelectProject={(project) => setCurrentProject(() => project)}
+                onAddProject={() => {
+                    setCurrentContext(NEW_PROJECT);
+                }}/>
             <div className="flex-3/4 bg-stone-100">
                 {currentContext === NEW_PROJECT &&
                     (<NewProject onCancel={() => setCurrentContext(MAIN)}
                                  onSubmit={(project) => {
-                                     updateProject(project)
+                                     updateProject(project);
+                                     setCurrentContext(MAIN);
+                                     setCurrentProject(null);
                                  }}
                     />)}
                 {currentContext === MAIN && currentProject === null &&
@@ -50,8 +71,17 @@ export default function BodyContent() {
                             setCurrentContext(NEW_PROJECT);
                         }}
                     />)}
-                {currentProject !== null  && currentContext === MAIN &&
-                    <ProjectManagement project={currentProject} onAddTask={handleAddTask} />}
+                {currentProject !== null && currentContext === MAIN &&
+                    <ProjectManagement
+                        project={currentProject}
+                        onAddTask={handleAddTask}
+                        onClearTask={clearTask}
+                        onDeleteProject={(project) => {
+                            deleteProject(project);
+                            setCurrentProject(() => null);
+                            setCurrentContext(() => MAIN);
+                        }}
+                    />}
             </div>
         </>)
 
